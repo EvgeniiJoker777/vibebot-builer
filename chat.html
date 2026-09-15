@@ -1,0 +1,1711 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тестирование AI — VibeBot</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+          },
+          boxShadow: {
+            soft: '0 10px 40px rgba(15, 23, 42, 0.08)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+
+    .message-appear {
+      animation: messageAppear 0.25s ease-out;
+    }
+
+    @keyframes messageAppear {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .typing-dot {
+      animation: typing 1.2s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.35;
+      }
+
+      30% {
+        transform: translateY(-4px);
+        opacity: 1;
+      }
+    }
+
+    .sidebar-transition {
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    textarea {
+      resize: none;
+    }
+
+    .quick-question {
+      transition: all 0.15s ease;
+    }
+
+    .quick-question:hover {
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen font-sans">
+
+  <!-- =========================================================
+       HEADER
+  ========================================================== -->
+  <header class="h-16 border-b border-slate-200 bg-white">
+    <div class="mx-auto flex h-full max-w-[1600px] items-center justify-between px-4 sm:px-6">
+
+      <!-- Left -->
+      <div class="flex items-center gap-4">
+
+        <a
+          href="settings.html"
+          class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
+          title="Назад к настройкам"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M15 18L9 12L15 6"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </a>
+
+        <div class="hidden h-6 w-px bg-slate-200 sm:block"></div>
+
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm font-semibold text-slate-900 sm:text-base">
+              Тестирование AI
+            </h1>
+
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              Черновик
+            </span>
+          </div>
+
+          <p class="hidden text-xs text-slate-500 sm:block">
+            Проверьте, как ваш бот отвечает пользователям
+          </p>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="flex items-center gap-2">
+
+        <button
+          onclick="newSession()"
+          class="hidden items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 sm:flex"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 5V19M5 12H19"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          Новая сессия
+        </button>
+
+        <a
+          href="settings.html"
+          class="flex items-center gap-2 rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+            <path
+              d="M19.4 15C19.55 14.67 19.67 14.33 19.74 13.96L21.18 12.84L19.18 9.38L17.4 9.98C17.12 9.76 16.82 9.56 16.5 9.4L16.23 7.52H12.23L11.96 9.4C11.64 9.56 11.34 9.76 11.06 9.98L9.28 9.38L7.28 12.84L8.72 13.96C8.79 14.33 8.91 14.67 9.06 15L8.72 16.04L7.28 17.16L9.28 20.62L11.06 20.02C11.34 20.24 11.64 20.44 11.96 20.6L12.23 22.48H16.23L16.5 20.6C16.82 20.44 17.12 20.24 17.4 20.02L19.18 20.62L21.18 17.16L19.74 16.04C19.67 15.67 19.55 15.33 19.4 15Z"
+              stroke="currentColor"
+              stroke-width="1.2"
+              opacity=".65"
+            />
+          </svg>
+          <span class="hidden sm:inline">Настройки</span>
+        </a>
+
+        <button
+          id="mobileSidebarButton"
+          onclick="toggleSidebar()"
+          class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 lg:hidden"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M4 6H20M4 12H20M4 18H20"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+
+  <!-- =========================================================
+       MAIN
+  ========================================================== -->
+  <main class="mx-auto flex max-w-[1600px]">
+
+    <!-- =======================================================
+         LEFT SIDEBAR
+    ======================================================== -->
+    <aside
+      id="sidebar"
+      class="sidebar-transition fixed inset-y-16 left-0 z-40 w-80 -translate-x-full border-r border-slate-200 bg-white lg:static lg:block lg:translate-x-0"
+    >
+      <div class="flex h-[calc(100vh-4rem)] flex-col">
+
+        <!-- Bot information -->
+        <div class="border-b border-slate-200 p-5">
+
+          <div class="mb-4 flex items-center justify-between">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+              Тестовый бот
+            </p>
+
+            <span class="flex items-center gap-1.5 text-xs text-emerald-600">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+              Готов
+            </span>
+          </div>
+
+          <div class="flex items-center gap-3">
+
+            <div
+              id="botAvatar"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-xl"
+            >
+              ☕
+            </div>
+
+            <div class="min-w-0">
+              <h2
+                id="botNameSidebar"
+                class="truncate text-sm font-semibold text-slate-900"
+              >
+                Coffee Bot
+              </h2>
+
+              <p
+                id="businessNameSidebar"
+                class="truncate text-xs text-slate-500"
+              >
+                Coffee House
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- Test settings -->
+        <div class="flex-1 overflow-y-auto scrollbar p-5">
+
+          <div class="mb-6">
+
+            <div class="mb-3 flex items-center justify-between">
+              <h3 class="text-sm font-semibold text-slate-900">
+                Настройки теста
+              </h3>
+
+              <span class="rounded-md bg-slate-100 px-2 py-1 text-[11px] text-slate-500">
+                Preview
+              </span>
+            </div>
+
+
+            <!-- Model -->
+            <div class="mb-4">
+              <label class="mb-2 block text-xs font-medium text-slate-600">
+                AI модель
+              </label>
+
+              <select
+                id="modelSelect"
+                class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              >
+                <option value="smart">Smart AI</option>
+                <option value="fast">Fast AI</option>
+                <option value="advanced">Advanced AI</option>
+              </select>
+            </div>
+
+
+            <!-- Temperature -->
+            <div class="mb-5">
+
+              <div class="mb-2 flex items-center justify-between">
+                <label class="text-xs font-medium text-slate-600">
+                  Креативность
+                </label>
+
+                <span
+                  id="temperatureValue"
+                  class="text-xs font-semibold text-slate-800"
+                >
+                  0.7
+                </span>
+              </div>
+
+              <input
+                id="temperature"
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                value="0.7"
+                class="w-full accent-slate-900"
+                oninput="updateTemperature(this.value)"
+              />
+
+              <div class="mt-1 flex justify-between text-[11px] text-slate-400">
+                <span>Точно</span>
+                <span>Креативно</span>
+              </div>
+
+            </div>
+
+
+            <!-- Knowledge -->
+            <div class="mb-5">
+
+              <label class="mb-2 block text-xs font-medium text-slate-600">
+                Использовать знания
+              </label>
+
+              <label class="flex cursor-pointer items-center justify-between rounded-lg border border-slate-200 p-3 transition hover:bg-slate-50">
+
+                <div class="flex items-center gap-3">
+
+                  <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M4 5.5C4 4.67 4.67 4 5.5 4H18.5C19.33 4 20 4.67 20 5.5V18.5C20 19.33 19.33 20 18.5 20H5.5C4.67 20 4 19.33 4 18.5V5.5Z"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                      />
+                      <path
+                        d="M8 8H16M8 12H16M8 16H13"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </div>
+
+                  <div>
+                    <p class="text-xs font-medium text-slate-800">
+                      База знаний
+                    </p>
+                    <p class="text-[11px] text-slate-400">
+                      FAQ, документы и информация
+                    </p>
+                  </div>
+
+                </div>
+
+                <input
+                  id="knowledgeToggle"
+                  type="checkbox"
+                  checked
+                  class="h-4 w-4 rounded border-slate-300 accent-slate-900"
+                />
+
+              </label>
+            </div>
+
+
+            <!-- Session -->
+            <div>
+
+              <label class="mb-2 block text-xs font-medium text-slate-600">
+                Сессия
+              </label>
+
+              <button
+                onclick="clearChat()"
+                class="flex w-full items-center justify-between rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50"
+              >
+                <span class="flex items-center gap-2">
+
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M4 7H20M9 11V17M15 11V17M6 7L7 20H17L18 7M9 7V4H15V7"
+                      stroke="currentColor"
+                      stroke-width="1.7"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+
+                  Очистить чат
+                </span>
+
+                <span class="text-xs text-slate-400">
+                  Ctrl + K
+                </span>
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- Quick questions -->
+          <div>
+
+            <h3 class="mb-3 text-sm font-semibold text-slate-900">
+              Быстрые вопросы
+            </h3>
+
+            <div class="space-y-2">
+
+              <button
+                onclick="sendQuickQuestion('Какое у вас меню?')"
+                class="quick-question w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-xs leading-5 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+              >
+                Какое у вас меню?
+              </button>
+
+              <button
+                onclick="sendQuickQuestion('Во сколько вы открываетесь?')"
+                class="quick-question w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-xs leading-5 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+              >
+                Во сколько вы открываетесь?
+              </button>
+
+              <button
+                onclick="sendQuickQuestion('Можно ли забронировать столик?')"
+                class="quick-question w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-xs leading-5 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+              >
+                Можно ли забронировать столик?
+              </button>
+
+              <button
+                onclick="sendQuickQuestion('Где вы находитесь?')"
+                class="quick-question w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-xs leading-5 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+              >
+                Где вы находитесь?
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+
+
+        <!-- Sidebar bottom -->
+        <div class="border-t border-slate-200 p-4">
+
+          <a
+            href="settings.html"
+            class="flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z"
+                stroke="currentColor"
+                stroke-width="1.8"
+              />
+              <path
+                d="M4 12C4 13.1 4.9 14 6 14H18C19.1 14 20 13.1 20 12C20 10.9 19.1 10 18 10H6C4.9 10 4 10.9 4 12Z"
+                stroke="currentColor"
+                stroke-width="1.2"
+                opacity=".5"
+              />
+            </svg>
+            Открыть настройки
+          </a>
+
+        </div>
+
+      </div>
+    </aside>
+
+
+    <!-- =======================================================
+         CHAT
+    ======================================================== -->
+    <section class="flex min-w-0 flex-1">
+
+      <div class="flex h-[calc(100vh-4rem)] w-full flex-col bg-white">
+
+        <!-- Chat header -->
+        <div class="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-4 sm:px-6">
+
+          <div class="flex items-center gap-3">
+
+            <div
+              id="chatAvatar"
+              class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-lg"
+            >
+              ☕
+            </div>
+
+            <div>
+              <div class="flex items-center gap-2">
+
+                <h2
+                  id="chatBotName"
+                  class="text-sm font-semibold text-slate-900"
+                >
+                  Coffee Bot
+                </h2>
+
+                <span class="hidden text-xs text-slate-400 sm:inline">
+                  •
+                </span>
+
+                <span class="hidden text-xs text-slate-500 sm:inline">
+                  Тестовый режим
+                </span>
+
+              </div>
+
+              <p class="text-xs text-slate-400">
+                Ответы не видны реальным пользователям
+              </p>
+            </div>
+
+          </div>
+
+
+          <div class="flex items-center gap-2">
+
+            <button
+              onclick="toggleSourcesPanel()"
+              class="hidden items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 sm:flex"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 5.5C4 4.67 4.67 4 5.5 4H18.5C19.33 4 20 4.67 20 5.5V18.5C20 19.33 19.33 20 18.5 20H5.5C4.67 20 4 19.33 4 18.5V5.5Z"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                />
+                <path
+                  d="M8 8H16M8 12H16M8 16H13"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                />
+              </svg>
+              Источники
+            </button>
+
+            <button
+              onclick="clearChat()"
+              class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
+              title="Очистить чат"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 7H20M9 7V4H15V7M7 7L8 20H16L17 7"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- Messages -->
+        <div
+          id="chatMessages"
+          class="scrollbar flex-1 overflow-y-auto bg-slate-50/60 px-4 py-6 sm:px-8"
+        >
+
+          <div class="mx-auto max-w-3xl">
+
+            <!-- Date -->
+            <div class="mb-6 flex items-center justify-center">
+              <span class="rounded-full bg-white px-3 py-1 text-[11px] font-medium text-slate-400 shadow-sm">
+                Сегодня
+              </span>
+            </div>
+
+
+            <!-- Bot welcome -->
+            <div class="message-appear mb-6 flex items-start gap-3">
+
+              <div
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-base"
+              >
+                ☕
+              </div>
+
+              <div class="max-w-[85%]">
+
+                <div class="mb-1 flex items-center gap-2">
+                  <span class="text-xs font-semibold text-slate-800">
+                    Coffee Bot
+                  </span>
+
+                  <span class="text-[11px] text-slate-400">
+                    10:24
+                  </span>
+                </div>
+
+                <div class="rounded-2xl rounded-tl-md border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-sm">
+                  Здравствуйте! 👋 Я тестовая версия вашего AI-бота.
+
+                  <br><br>
+
+                  Задайте мне вопрос, чтобы проверить, насколько хорошо я понимаю инструкции и информацию о вашем бизнесе.
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- User -->
+            <div class="message-appear mb-6 flex justify-end">
+
+              <div class="max-w-[85%]">
+
+                <div class="mb-1 flex items-center justify-end gap-2">
+                  <span class="text-[11px] text-slate-400">
+                    10:25
+                  </span>
+
+                  <span class="text-xs font-semibold text-slate-800">
+                    Вы
+                  </span>
+                </div>
+
+                <div class="rounded-2xl rounded-tr-md bg-slate-900 px-4 py-3 text-sm leading-6 text-white shadow-sm">
+                  Во сколько вы открываетесь?
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- Bot answer -->
+            <div class="message-appear mb-6 flex items-start gap-3">
+
+              <div
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-base"
+              >
+                ☕
+              </div>
+
+              <div class="max-w-[85%]">
+
+                <div class="mb-1 flex items-center gap-2">
+                  <span class="text-xs font-semibold text-slate-800">
+                    Coffee Bot
+                  </span>
+
+                  <span class="text-[11px] text-slate-400">
+                    10:25
+                  </span>
+                </div>
+
+                <div class="rounded-2xl rounded-tl-md border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-sm">
+
+                  Мы открываемся ежедневно в <strong>08:00</strong> и работаем до <strong>22:00</strong>.
+
+                  <br><br>
+
+                  Будем рады видеть вас! ☕️
+
+                </div>
+
+
+                <!-- Answer actions -->
+                <div class="mt-2 flex items-center gap-1">
+
+                  <button
+                    onclick="rateAnswer(this, 'up')"
+                    class="answer-rate rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                    title="Хороший ответ"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M7 10V21M4 10H7V21H4V10ZM7 10L11 3C11.8 1.6 14 2.2 14 3.8V8H19C20.1 8 21 8.9 21 10L19.5 19C19.3 20.2 18.3 21 17.1 21H7"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+
+                  <button
+                    onclick="rateAnswer(this, 'down')"
+                    class="answer-rate rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                    title="Плохой ответ"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M7 14V3M4 14H7V3H4V14ZM7 14L11 21C11.8 22.4 14 21.8 14 20.2V16H19C20.1 16 21 15.1 21 14L19.5 5C19.3 3.8 18.3 3 17.1 3H7"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+
+                  <button
+                    onclick="copyAnswer(this)"
+                    class="rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                    title="Скопировать"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                      <rect x="8" y="8" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                      <path d="M16 8V6C16 4.9 15.1 4 14 4H6C4.9 4 4 4.9 4 6V14C4 15.1 4.9 16 6 16H8" stroke="currentColor" stroke-width="1.6"/>
+                    </svg>
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- Knowledge source -->
+            <div class="mb-8 ml-12">
+
+              <button
+                onclick="toggleSourcesPanel()"
+                class="flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-blue-700 transition hover:bg-blue-100"
+              >
+
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M4 5.5C4 4.67 4.67 4 5.5 4H18.5C19.33 4 20 4.67 20 5.5V18.5C20 19.33 19.33 20 18.5 20H5.5C4.67 20 4 19.33 4 18.5V5.5Z"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                  />
+                  <path
+                    d="M8 8H16M8 12H16M8 16H13"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  />
+                </svg>
+
+                Использован источник: Меню и информация.txt
+
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M9 18L15 12L9 6"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+
+              </button>
+
+            </div>
+
+
+            <!-- Empty typing target -->
+            <div id="typingIndicator" class="mb-6 hidden items-start gap-3">
+
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-base">
+                ☕
+              </div>
+
+              <div class="rounded-2xl rounded-tl-md border border-slate-200 bg-white px-4 py-3 shadow-sm">
+
+                <div class="flex items-center gap-1">
+                  <span class="typing-dot h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                  <span class="typing-dot h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                  <span class="typing-dot h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- Sources panel -->
+        <div
+          id="sourcesPanel"
+          class="hidden border-t border-slate-200 bg-white px-4 py-4 sm:px-8"
+        >
+
+          <div class="mx-auto max-w-3xl">
+
+            <div class="mb-3 flex items-center justify-between">
+
+              <div>
+                <h3 class="text-sm font-semibold text-slate-900">
+                  Источники ответа
+                </h3>
+
+                <p class="mt-0.5 text-xs text-slate-400">
+                  Информация, которую AI использовал для последнего ответа
+                </p>
+              </div>
+
+              <button
+                onclick="toggleSourcesPanel()"
+                class="text-slate-400 hover:text-slate-700"
+              >
+                ✕
+              </button>
+
+            </div>
+
+            <div class="grid gap-2 sm:grid-cols-2">
+
+              <div class="rounded-lg border border-slate-200 p-3">
+
+                <div class="flex items-start gap-3">
+
+                  <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M6 3H14L19 8V21H6V3Z"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M14 3V8H19M9 12H16M9 16H16"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </div>
+
+                  <div class="min-w-0">
+                    <p class="truncate text-xs font-medium text-slate-800">
+                      Меню и информация.txt
+                    </p>
+
+                    <p class="mt-1 text-[11px] text-slate-400">
+                      Релевантность: 96%
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <div class="rounded-lg border border-slate-200 p-3">
+
+                <div class="flex items-start gap-3">
+
+                  <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M4 6.5C4 5.67 4.67 5 5.5 5H18.5C19.33 5 20 5.67 20 6.5V17.5C20 18.33 19.33 19 18.5 19H5.5C4.67 19 4 18.33 4 17.5V6.5Z"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                      />
+                      <path
+                        d="M8 9H16M8 13H14"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </div>
+
+                  <div class="min-w-0">
+                    <p class="truncate text-xs font-medium text-slate-800">
+                      Инструкции AI
+                    </p>
+
+                    <p class="mt-1 text-[11px] text-slate-400">
+                      Системные инструкции
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- Input area -->
+        <div class="shrink-0 border-t border-slate-200 bg-white px-4 py-4 sm:px-8">
+
+          <div class="mx-auto max-w-3xl">
+
+            <div
+              class="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm transition focus-within:border-slate-300 focus-within:ring-4 focus-within:ring-slate-100"
+            >
+
+              <textarea
+                id="messageInput"
+                rows="2"
+                placeholder="Напишите сообщение для тестирования..."
+                class="max-h-32 min-h-[52px] w-full border-0 bg-transparent px-3 py-2 text-sm leading-6 text-slate-800 outline-none placeholder:text-slate-400"
+                onkeydown="handleInputKeydown(event)"
+              ></textarea>
+
+
+              <div class="flex items-center justify-between px-2 pb-1">
+
+                <div class="flex items-center gap-1">
+
+                  <button
+                    onclick="showToast('Файлы доступны в разделе «Знания»')"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                    title="Добавить файл"
+                  >
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M12 5V19M5 12H19"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </button>
+
+                  <span class="hidden text-[11px] text-slate-400 sm:block">
+                    Enter — отправить · Shift + Enter — новая строка
+                  </span>
+
+                </div>
+
+
+                <button
+                  id="sendButton"
+                  onclick="sendMessage()"
+                  class="flex h-9 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span>Отправить</span>
+
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M22 2L11 13"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M22 2L15 22L11 13L2 9L22 2Z"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+
+                </button>
+
+              </div>
+
+            </div>
+
+            <p class="mt-2 text-center text-[11px] text-slate-400">
+              Тестовый чат не влияет на статистику реального бота
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================================================
+       MOBILE OVERLAY
+  ========================================================== -->
+  <div
+    id="sidebarOverlay"
+    onclick="toggleSidebar()"
+    class="fixed inset-0 z-30 hidden bg-slate-900/30 backdrop-blur-sm lg:hidden"
+  ></div>
+
+
+  <!-- =========================================================
+       TOAST
+  ========================================================== -->
+  <div
+    id="toast"
+    class="pointer-events-none fixed bottom-5 left-1/2 z-50 hidden -translate-x-1/2"
+  >
+    <div class="flex items-center gap-3 rounded-xl bg-slate-900 px-4 py-3 text-sm text-white shadow-xl">
+
+      <div
+        id="toastIcon"
+        class="flex h-6 w-6 items-center justify-center rounded-full bg-white/10"
+      >
+        ✓
+      </div>
+
+      <span id="toastText">
+        Готово
+      </span>
+
+    </div>
+  </div>
+
+
+  <!-- =========================================================
+       JAVASCRIPT
+  ========================================================== -->
+  <script>
+
+    /*
+     * ==========================================================
+     * BOT DATA
+     * Здесь позже можно заменить данные на реальные данные API.
+     * ==========================================================
+     */
+
+    const botData = {
+      name: "Coffee Bot",
+      business: "Coffee House",
+      type: "coffee",
+      emoji: "☕"
+    };
+
+
+    /*
+     * ==========================================================
+     * INITIALIZATION
+     * ==========================================================
+     */
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+      document.getElementById("botNameSidebar").textContent = botData.name;
+      document.getElementById("businessNameSidebar").textContent = botData.business;
+
+      document.getElementById("chatBotName").textContent = botData.name;
+
+      document.getElementById("botAvatar").textContent = botData.emoji;
+      document.getElementById("chatAvatar").textContent = botData.emoji;
+
+      document.getElementById("messageInput").focus();
+
+    });
+
+
+    /*
+     * ==========================================================
+     * SEND MESSAGE
+     * ==========================================================
+     */
+
+    function sendMessage() {
+
+      const input = document.getElementById("messageInput");
+      const message = input.value.trim();
+
+      if (!message) {
+        return;
+      }
+
+      addUserMessage(message);
+
+      input.value = "";
+
+      autoResize(input);
+
+      showTyping();
+
+      /*
+       * Здесь позже можно заменить setTimeout
+       * на настоящий API запрос к вашему AI backend.
+       */
+
+      setTimeout(() => {
+
+        hideTyping();
+
+        generateBotResponse(message);
+
+      }, 1000 + Math.random() * 800);
+
+    }
+
+
+    /*
+     * ==========================================================
+     * USER MESSAGE
+     * ==========================================================
+     */
+
+    function addUserMessage(message) {
+
+      const container = document.querySelector("#chatMessages .max-w-3xl");
+
+      const wrapper = document.createElement("div");
+
+      wrapper.className = "message-appear mb-6 flex justify-end";
+
+      wrapper.innerHTML = `
+        <div class="max-w-[85%]">
+
+          <div class="mb-1 flex items-center justify-end gap-2">
+            <span class="text-[11px] text-slate-400">
+              ${getCurrentTime()}
+            </span>
+
+            <span class="text-xs font-semibold text-slate-800">
+              Вы
+            </span>
+          </div>
+
+          <div class="rounded-2xl rounded-tr-md bg-slate-900 px-4 py-3 text-sm leading-6 text-white shadow-sm">
+            ${escapeHtml(message)}
+          </div>
+
+        </div>
+      `;
+
+      container.appendChild(wrapper);
+
+      scrollToBottom();
+
+    }
+
+
+    /*
+     * ==========================================================
+     * BOT RESPONSE
+     * ==========================================================
+     */
+
+    function generateBotResponse(message) {
+
+      const normalized = message.toLowerCase();
+
+      let response = "";
+
+      if (
+        normalized.includes("откры") ||
+        normalized.includes("работа") ||
+        normalized.includes("часы")
+      ) {
+
+        response =
+          "Мы открываемся ежедневно в <strong>08:00</strong> и работаем до <strong>22:00</strong>. Будем рады видеть вас! ☕️";
+
+      } else if (
+        normalized.includes("меню") ||
+        normalized.includes("кофе") ||
+        normalized.includes("напит")
+      ) {
+
+        response =
+          "У нас есть классические кофейные напитки, альтернативный кофе, чай и десерты. Например: эспрессо, американо, капучино и латте.";
+
+      } else if (
+        normalized.includes("брон") ||
+        normalized.includes("стол")
+      ) {
+
+        response =
+          "Да, вы можете забронировать столик. Для бронирования потребуется указать дату, время и количество гостей.";
+
+      } else if (
+        normalized.includes("где") ||
+        normalized.includes("адрес") ||
+        normalized.includes("находит")
+      ) {
+
+        response =
+          "Мы находимся в центре города. Точный адрес и схема проезда доступны в информации о бизнесе.";
+
+      } else if (
+        normalized.includes("цен") ||
+        normalized.includes("сколько стоит")
+      ) {
+
+        response =
+          "Стоимость напитков зависит от выбранной позиции. Я могу подсказать цены, если вы укажете конкретный напиток.";
+
+      } else {
+
+        response =
+          "Спасибо за вопрос! Я обработал его на основе инструкций и информации из базы знаний вашего бота. Если ответ недостаточно точный, попробуйте уточнить информацию в разделе «Настройки → Инструкции AI» или «Знания».";
+
+      }
+
+      addBotMessage(response);
+
+    }
+
+
+    /*
+     * ==========================================================
+     * BOT MESSAGE
+     * ==========================================================
+     */
+
+    function addBotMessage(message) {
+
+      const container = document.querySelector("#chatMessages .max-w-3xl");
+
+      const wrapper = document.createElement("div");
+
+      wrapper.className = "message-appear mb-6 flex items-start gap-3";
+
+      wrapper.innerHTML = `
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-base">
+          ${botData.emoji}
+        </div>
+
+        <div class="max-w-[85%]">
+
+          <div class="mb-1 flex items-center gap-2">
+            <span class="text-xs font-semibold text-slate-800">
+              ${escapeHtml(botData.name)}
+            </span>
+
+            <span class="text-[11px] text-slate-400">
+              ${getCurrentTime()}
+            </span>
+          </div>
+
+          <div class="rounded-2xl rounded-tl-md border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-sm">
+            ${message}
+          </div>
+
+          <div class="mt-2 flex items-center gap-1">
+
+            <button
+              onclick="rateAnswer(this, 'up')"
+              class="answer-rate rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+              title="Хороший ответ"
+            >
+              👍
+            </button>
+
+            <button
+              onclick="rateAnswer(this, 'down')"
+              class="answer-rate rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+              title="Плохой ответ"
+            >
+              👎
+            </button>
+
+            <button
+              onclick="copyAnswer(this)"
+              class="rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+              title="Скопировать"
+            >
+              ⧉
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+      container.appendChild(wrapper);
+
+      scrollToBottom();
+
+    }
+
+
+    /*
+     * ==========================================================
+     * TYPING INDICATOR
+     * ==========================================================
+     */
+
+    function showTyping() {
+
+      const typing = document.getElementById("typingIndicator");
+
+      typing.classList.remove("hidden");
+      typing.classList.add("flex");
+
+      scrollToBottom();
+
+    }
+
+
+    function hideTyping() {
+
+      const typing = document.getElementById("typingIndicator");
+
+      typing.classList.add("hidden");
+      typing.classList.remove("flex");
+
+    }
+
+
+    /*
+     * ==========================================================
+     * QUICK QUESTIONS
+     * ==========================================================
+     */
+
+    function sendQuickQuestion(question) {
+
+      const input = document.getElementById("messageInput");
+
+      input.value = question;
+
+      sendMessage();
+
+    }
+
+
+    /*
+     * ==========================================================
+     * CLEAR CHAT
+     * ==========================================================
+     */
+
+    function clearChat() {
+
+      const container = document.querySelector("#chatMessages .max-w-3xl");
+
+      const messages = container.querySelectorAll(".message-appear");
+
+      messages.forEach((message) => {
+        message.remove();
+      });
+
+      const date = document.createElement("div");
+
+      date.className = "mb-6 flex items-center justify-center";
+
+      date.innerHTML = `
+        <span class="rounded-full bg-white px-3 py-1 text-[11px] font-medium text-slate-400 shadow-sm">
+          Новая сессия
+        </span>
+      `;
+
+      container.prepend(date);
+
+      addBotMessage(
+        "Новая тестовая сессия начата. Задайте вопрос, чтобы проверить работу вашего AI-бота."
+      );
+
+      showToast("Чат очищен");
+
+    }
+
+
+    /*
+     * ==========================================================
+     * NEW SESSION
+     * ==========================================================
+     */
+
+    function newSession() {
+
+      clearChat();
+
+      showToast("Новая тестовая сессия создана");
+
+    }
+
+
+    /*
+     * ==========================================================
+     * RATE ANSWER
+     * ==========================================================
+     */
+
+    function rateAnswer(button, type) {
+
+      const parent = button.parentElement;
+
+      const buttons = parent.querySelectorAll(".answer-rate");
+
+      buttons.forEach((item) => {
+        item.classList.remove(
+          "bg-emerald-50",
+          "text-emerald-600",
+          "bg-red-50",
+          "text-red-600"
+        );
+      });
+
+      if (type === "up") {
+
+        button.classList.add(
+          "bg-emerald-50",
+          "text-emerald-600"
+        );
+
+        showToast("Спасибо! Ответ отмечен как хороший");
+
+      } else {
+
+        button.classList.add(
+          "bg-red-50",
+          "text-red-600"
+        );
+
+        showToast("Ответ отмечен как требующий улучшения");
+
+      }
+
+    }
+
+
+    /*
+     * ==========================================================
+     * COPY ANSWER
+     * ==========================================================
+     */
+
+    function copyAnswer(button) {
+
+      const messageBox = button
+        .closest(".max-w-\\[85\\%\\]")
+        ?.querySelector(".rounded-2xl");
+
+      if (!messageBox) {
+        return;
+      }
+
+      const text = messageBox.innerText;
+
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          showToast("Ответ скопирован");
+        })
+        .catch(() => {
+          showToast("Не удалось скопировать");
+        });
+
+    }
+
+
+    /*
+     * ==========================================================
+     * SOURCES PANEL
+     * ==========================================================
+     */
+
+    function toggleSourcesPanel() {
+
+      const panel = document.getElementById("sourcesPanel");
+
+      panel.classList.toggle("hidden");
+
+      if (!panel.classList.contains("hidden")) {
+        panel.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest"
+        });
+      }
+
+    }
+
+
+    /*
+     * ==========================================================
+     * TEMPERATURE
+     * ==========================================================
+     */
+
+    function updateTemperature(value) {
+
+      document.getElementById("temperatureValue").textContent = value;
+
+    }
+
+
+    /*
+     * ==========================================================
+     * KEYBOARD
+     * ==========================================================
+     */
+
+    function handleInputKeydown(event) {
+
+      /*
+       * Enter отправляет сообщение.
+       * Shift + Enter переносит строку.
+       */
+
+      if (event.key === "Enter" && !event.shiftKey) {
+
+        event.preventDefault();
+
+        sendMessage();
+
+      }
+
+    }
+
+
+    /*
+     * ==========================================================
+     * AUTO RESIZE TEXTAREA
+     * ==========================================================
+     */
+
+    const textarea = document.getElementById("messageInput");
+
+    textarea.addEventListener("input", () => {
+
+      autoResize(textarea);
+
+    });
+
+
+    function autoResize(element) {
+
+      element.style.height = "auto";
+
+      element.style.height =
+        Math.min(element.scrollHeight, 128) + "px";
+
+    }
+
+
+    /*
+     * ==========================================================
+     * MOBILE SIDEBAR
+     * ==========================================================
+     */
+
+    function toggleSidebar() {
+
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebarOverlay");
+
+      if (sidebar.classList.contains("-translate-x-full")) {
+
+        sidebar.classList.remove("-translate-x-full");
+        overlay.classList.remove("hidden");
+
+      } else {
+
+        sidebar.classList.add("-translate-x-full");
+        overlay.classList.add("hidden");
+
+      }
+
+    }
+
+
+    /*
+     * ==========================================================
+     * SCROLL
+     * ==========================================================
+     */
+
+    function scrollToBottom() {
+
+      const messages = document.getElementById("chatMessages");
+
+      setTimeout(() => {
+
+        messages.scrollTo({
+          top: messages.scrollHeight,
+          behavior: "smooth"
+        });
+
+      }, 50);
+
+    }
+
+
+    /*
+     * ==========================================================
+     * CURRENT TIME
+     * ==========================================================
+     */
+
+    function getCurrentTime() {
+
+      const now = new Date();
+
+      return now.toLocaleTimeString("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+    }
+
+
+    /*
+     * ==========================================================
+     * TOAST
+     * ==========================================================
+     */
+
+    let toastTimeout;
+
+    function showToast(message) {
+
+      const toast = document.getElementById("toast");
+      const text = document.getElementById("toastText");
+
+      text.textContent = message;
+
+      toast.classList.remove("hidden");
+
+      clearTimeout(toastTimeout);
+
+      toastTimeout = setTimeout(() => {
+
+        toast.classList.add("hidden");
+
+      }, 2500);
+
+    }
+
+
+    /*
+     * ==========================================================
+     * ESCAPE HTML
+     * ==========================================================
+     */
+
+    function escapeHtml(value) {
+
+      return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    }
+
+
+    /*
+     * ==========================================================
+     * KEYBOARD SHORTCUT
+     * ==========================================================
+     */
+
+    document.addEventListener("keydown", (event) => {
+
+      /*
+       * Ctrl/Cmd + K — очистить чат
+       */
+
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === "k"
+      ) {
+
+        event.preventDefault();
+
+        clearChat();
+
+      }
+
+      /*
+       * Escape — закрыть mobile sidebar
+       */
+
+      if (event.key === "Escape") {
+
+        const sidebar = document.getElementById("sidebar");
+
+        if (!sidebar.classList.contains("-translate-x-full")) {
+          toggleSidebar();
+        }
+
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
+```
