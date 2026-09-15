@@ -1,0 +1,2303 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Настройки бота — VibeBot AI Builder</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: #f8fafc;
+    }
+
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .sidebar-link {
+      transition: all .2s ease;
+    }
+
+    .sidebar-link.active {
+      background: #eef2ff;
+      color: #4f46e5;
+      font-weight: 600;
+    }
+
+    .sidebar-link:hover:not(.active) {
+      background: #f8fafc;
+      color: #334155;
+    }
+
+    .settings-section {
+      scroll-margin-top: 100px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      cursor: pointer;
+      transition: background .2s ease;
+      flex-shrink: 0;
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,.15);
+      transition: transform .2s ease;
+    }
+
+    .toggle.on {
+      background: #4f46e5;
+    }
+
+    .toggle.on::after {
+      transform: translateX(20px);
+    }
+
+    .toast {
+      animation: toastIn .25s ease forwards;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn .25s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .upload-zone.dragover {
+      border-color: #6366f1;
+      background: #eef2ff;
+    }
+  </style>
+</head>
+
+<body class="text-slate-900 antialiased">
+
+  <!-- =========================================================
+       HEADER
+  ========================================================== -->
+  <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <div class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+
+      <div class="flex items-center gap-4">
+
+        <!-- Logo -->
+        <a href="bots.html" class="flex items-center gap-2.5">
+          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 3L14.2 8.2L20 10.2L14.2 12.2L12 18L9.8 12.2L4 10.2L9.8 8.2L12 3Z"
+                fill="currentColor"
+              />
+              <path
+                d="M19 16L19.8 18.2L22 19L19.8 19.8L19 22L18.2 19.8L16 19L18.2 18.2L19 16Z"
+                fill="currentColor"
+              />
+            </svg>
+          </div>
+
+          <span class="hidden text-lg font-bold tracking-tight sm:block">
+            VibeBot
+          </span>
+        </a>
+
+        <div class="hidden h-6 w-px bg-slate-200 sm:block"></div>
+
+        <!-- Back -->
+        <a
+          href="bots.html"
+          class="flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-900"
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M15 18L9 12L15 6"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span class="hidden sm:inline">Мои боты</span>
+        </a>
+
+        <div class="hidden h-6 w-px bg-slate-200 sm:block"></div>
+
+        <div class="hidden items-center gap-2 md:flex">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-lg">
+            ☕
+          </div>
+          <div>
+            <p class="text-sm font-semibold leading-none">Coffee House Bot</p>
+            <p class="mt-1 text-xs text-slate-400">Coffee House</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+
+        <!-- Test -->
+        <a
+          href="test.html"
+          class="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 sm:flex"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M8 5L19 12L8 19V5Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Тестировать
+        </a>
+
+        <!-- Publish -->
+        <a
+          href="publish.html"
+          class="flex items-center gap-2 rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 16V4M12 4L7 9M12 4L17 9"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M5 20H19"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span class="hidden sm:inline">Опубликовать</span>
+        </a>
+
+        <!-- Profile -->
+        <button
+          id="profileButton"
+          class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white"
+        >
+          EJ
+        </button>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- =========================================================
+       MAIN LAYOUT
+  ========================================================== -->
+  <div class="mx-auto flex max-w-[1500px]">
+
+    <!-- =======================================================
+         SIDEBAR
+    ======================================================== -->
+    <aside
+      class="hidden w-64 shrink-0 border-r border-slate-200 bg-white lg:block"
+    >
+      <div class="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto p-4">
+
+        <div class="mb-6 px-3 pt-2">
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Настройки бота
+          </p>
+        </div>
+
+        <nav class="space-y-1">
+
+          <button
+            class="sidebar-link active flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm"
+            data-section="general"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 15.5A3.5 3.5 0 1 0 12 8.5A3.5 3.5 0 0 0 12 15.5Z"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+              <path
+                d="M19.4 15A1.7 1.7 0 0 0 19.74 16.87L19.8 16.93L17.93 18.8L17.87 18.74A1.7 1.7 0 0 0 16 19.4C15.65 19.55 15.38 19.86 15.28 20.24L15.2 20.5H8.8L8.72 20.24C8.62 19.86 8.35 19.55 8 19.4A1.7 1.7 0 0 0 6.13 19.74L6.07 19.8L4.2 17.93L4.26 17.87A1.7 1.7 0 0 0 4.6 16C4.45 15.65 4.14 15.38 3.76 15.28L3.5 15.2V8.8L3.76 8.72C4.14 8.62 4.45 8.35 4.6 8A1.7 1.7 0 0 0 4.26 6.13L4.2 6.07L6.07 4.2L6.13 4.26A1.7 1.7 0 0 0 8 4.6C8.35 4.45 8.62 4.14 8.72 3.76L8.8 3.5H15.2L15.28 3.76C15.38 4.14 15.65 4.45 16 4.6A1.7 1.7 0 0 0 17.87 4.26L17.93 4.2L19.8 6.07L19.74 6.13A1.7 1.7 0 0 0 19.4 8C19.55 8.35 19.86 8.62 20.24 8.72L20.5 8.8V15.2L20.24 15.28C19.86 15.38 19.55 15.65 19.4 15Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Основные настройки
+          </button>
+
+          <button
+            class="sidebar-link flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-slate-500"
+            data-section="ai"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M9 3V5M15 3V5M9 19V21M15 19V21M19 9H21M19 14H21M3 9H5M3 14H5"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+              <rect
+                x="6"
+                y="6"
+                width="12"
+                height="12"
+                rx="3"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+              <path
+                d="M9.5 10.5H14.5M9.5 13.5H12.5"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+            </svg>
+            Инструкции ИИ
+          </button>
+
+          <button
+            class="sidebar-link flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-slate-500"
+            data-section="knowledge"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M4 5.5C4 4.67 4.67 4 5.5 4H10L12 6H18.5C19.33 6 20 6.67 20 7.5V18.5C20 19.33 19.33 20 18.5 20H5.5C4.67 20 4 19.33 4 18.5V5.5Z"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Знания
+          </button>
+
+          <button
+            class="sidebar-link flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-slate-500"
+            data-section="behavior"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 3L14.5 8.5L20.5 11L14.5 13.5L12 20L9.5 13.5L3.5 11L9.5 8.5L12 3Z"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Поведение и ответы
+          </button>
+
+          <button
+            class="sidebar-link flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-slate-500"
+            data-section="integrations"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M9 12H15M12 9V15"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+              <path
+                d="M8 4H6.5C5.12 4 4 5.12 4 6.5V8C4 9.1 4.9 10 6 10H8C9.1 10 10 9.1 10 8V6C10 4.9 9.1 4 8 4Z"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+              <path
+                d="M16 14H18C19.1 14 20 14.9 20 16V18C20 19.1 19.1 20 18 20H16C14.9 20 14 19.1 14 18V16C14 14.9 14.9 14 16 14Z"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+            </svg>
+            Интеграции
+          </button>
+
+          <button
+            class="sidebar-link flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-slate-500"
+            data-section="publish"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 16V4M12 4L7 9M12 4L17 9"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M5 20H19"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+            </svg>
+            Публикация
+          </button>
+
+        </nav>
+
+        <!-- Bot status -->
+        <div class="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+            <span class="text-xs font-semibold text-slate-700">Бот активен</span>
+          </div>
+
+          <p class="mt-2 text-xs leading-5 text-slate-500">
+            Последнее изменение сегодня в 14:32
+          </p>
+        </div>
+
+      </div>
+    </aside>
+
+
+    <!-- =======================================================
+         MOBILE NAV
+    ======================================================== -->
+    <div class="fixed bottom-4 left-1/2 z-40 -translate-x-1/2 lg:hidden">
+      <div class="flex items-center gap-1 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl">
+
+        <button
+          class="mobile-nav active rounded-xl bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-600"
+          data-section="general"
+        >
+          Основные
+        </button>
+
+        <button
+          class="mobile-nav rounded-xl px-3 py-2 text-xs font-semibold text-slate-500"
+          data-section="ai"
+        >
+          ИИ
+        </button>
+
+        <button
+          class="mobile-nav rounded-xl px-3 py-2 text-xs font-semibold text-slate-500"
+          data-section="knowledge"
+        >
+          Знания
+        </button>
+
+        <button
+          class="mobile-nav rounded-xl px-3 py-2 text-xs font-semibold text-slate-500"
+          data-section="behavior"
+        >
+          Поведение
+        </button>
+
+      </div>
+    </div>
+
+
+    <!-- =======================================================
+         CONTENT
+    ======================================================== -->
+    <main class="min-w-0 flex-1">
+
+      <div class="mx-auto max-w-5xl px-4 py-8 pb-32 sm:px-6 lg:px-10">
+
+        <!-- Page title -->
+        <div class="mb-8">
+
+          <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+
+            <div>
+              <div class="mb-3 flex items-center gap-2">
+                <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                  Активен
+                </span>
+
+                <span class="text-xs text-slate-400">
+                  ID: vb_coffee_001
+                </span>
+              </div>
+
+              <h1 class="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+                Настройки бота
+              </h1>
+
+              <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+                Настройте поведение, знания и внешний вид AI-бота.
+                Изменения сохраняются автоматически после нажатия кнопки «Сохранить».
+              </p>
+            </div>
+
+            <button
+              id="saveTop"
+              class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M5 4H16L19 7V20H5V4Z"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M8 4V9H16V4M8 20V14H16V20"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                />
+              </svg>
+              Сохранить
+            </button>
+
+          </div>
+        </div>
+
+
+        <!-- =====================================================
+             GENERAL
+        ====================================================== -->
+        <section
+          id="section-general"
+          class="settings-section space-y-6"
+        >
+
+          <!-- Basic info -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+              <h2 class="text-base font-bold text-slate-900">
+                Основная информация
+              </h2>
+              <p class="mt-1 text-sm text-slate-500">
+                Основные данные вашего AI-бота.
+              </p>
+            </div>
+
+            <div class="space-y-6 p-5 sm:p-6">
+
+              <div class="grid gap-6 md:grid-cols-2">
+
+                <!-- Bot name -->
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">
+                    Название бота
+                  </label>
+
+                  <input
+                    id="botName"
+                    type="text"
+                    value="Coffee House Bot"
+                    class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                  />
+
+                  <p class="mt-1.5 text-xs text-slate-400">
+                    Это название используется внутри VibeBot.
+                  </p>
+                </div>
+
+                <!-- Business -->
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">
+                    Название бизнеса
+                  </label>
+
+                  <input
+                    id="businessName"
+                    type="text"
+                    value="Coffee House"
+                    class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                  />
+                </div>
+
+              </div>
+
+
+              <!-- Description -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  О бизнесе
+                </label>
+
+                <textarea
+                  id="businessDescription"
+                  rows="4"
+                  class="w-full resize-none rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm leading-6 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                >Coffee House — уютная кофейня с авторским кофе, свежей выпечкой и завтраками. Работаем ежедневно с 08:00 до 22:00.</textarea>
+
+                <div class="mt-1.5 flex justify-between">
+                  <p class="text-xs text-slate-400">
+                    Краткое описание помогает AI понимать контекст бизнеса.
+                  </p>
+
+                  <span id="descriptionCount" class="text-xs text-slate-400">
+                    0
+                  </span>
+                </div>
+              </div>
+
+
+              <!-- Language -->
+              <div class="grid gap-6 md:grid-cols-2">
+
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">
+                    Язык общения
+                  </label>
+
+                  <select
+                    class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                  >
+                    <option selected>Русский</option>
+                    <option>English</option>
+                    <option>Русский + English</option>
+                    <option>Українська</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">
+                    Категория бизнеса
+                  </label>
+
+                  <select
+                    class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                  >
+                    <option selected>Кофейня</option>
+                    <option>Ресторан</option>
+                    <option>Медицина</option>
+                    <option>Красота</option>
+                    <option>Недвижимость</option>
+                    <option>Другое</option>
+                  </select>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+
+          <!-- Avatar -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+              <h2 class="text-base font-bold text-slate-900">
+                Внешний вид
+              </h2>
+              <p class="mt-1 text-sm text-slate-500">
+                Как бот будет отображаться для пользователей.
+              </p>
+            </div>
+
+            <div class="flex flex-col gap-6 p-5 sm:flex-row sm:items-center sm:p-6">
+
+              <div class="relative">
+                <div
+                  id="avatarPreview"
+                  class="flex h-20 w-20 items-center justify-center rounded-2xl bg-amber-100 text-4xl"
+                >
+                  ☕
+                </div>
+
+                <button
+                  id="avatarEdit"
+                  class="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-indigo-600 text-white shadow-sm hover:bg-indigo-700"
+                  title="Изменить"
+                >
+                  ✎
+                </button>
+              </div>
+
+              <div>
+                <p class="text-sm font-semibold text-slate-800">
+                  Аватар бота
+                </p>
+
+                <p class="mt-1 text-sm leading-6 text-slate-500">
+                  Используйте изображение бренда или выберите иконку.
+                </p>
+
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button class="avatar-choice rounded-lg border border-slate-200 px-3 py-1.5 text-lg hover:border-indigo-300">
+                    ☕
+                  </button>
+                  <button class="avatar-choice rounded-lg border border-slate-200 px-3 py-1.5 text-lg hover:border-indigo-300">
+                    🤖
+                  </button>
+                  <button class="avatar-choice rounded-lg border border-slate-200 px-3 py-1.5 text-lg hover:border-indigo-300">
+                    💬
+                  </button>
+                  <button class="avatar-choice rounded-lg border border-slate-200 px-3 py-1.5 text-lg hover:border-indigo-300">
+                    ✨
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             AI
+        ====================================================== -->
+        <section
+          id="section-ai"
+          class="settings-section mt-10 space-y-6"
+        >
+
+          <div>
+            <h2 class="text-xl font-bold text-slate-950">
+              Инструкции ИИ
+            </h2>
+            <p class="mt-1 text-sm text-slate-500">
+              Определите роль, стиль и правила работы вашего AI.
+            </p>
+          </div>
+
+
+          <!-- Main instructions -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+              <h3 class="text-base font-bold">
+                Главная инструкция
+              </h3>
+
+              <p class="mt-1 text-sm text-slate-500">
+                AI использует эту инструкцию при формировании каждого ответа.
+              </p>
+            </div>
+
+            <div class="p-5 sm:p-6">
+
+              <textarea
+                id="aiInstructions"
+                rows="10"
+                class="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 font-mono text-sm leading-6 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+              >Ты — AI-консультант кофейни Coffee House.
+
+Твоя задача — помогать гостям узнавать информацию о кофейне, меню, ценах, времени работы и отвечать на вопросы.
+
+Всегда отвечай дружелюбно, понятно и по существу.
+
+Если пользователь спрашивает о меню или цене, используй актуальную информацию из базы знаний.
+
+Если информации нет в базе знаний, честно скажи, что у тебя нет точного ответа, и предложи связаться с сотрудником.
+
+Не придумывай цены, блюда, акции или условия, которых нет в базе знаний.
+
+Если пользователь хочет забронировать столик, собери необходимую информацию и объясни дальнейшие шаги.</textarea>
+
+              <div class="mt-3 rounded-xl bg-indigo-50 p-4">
+                <div class="flex gap-3">
+                  <div class="mt-0.5 text-indigo-600">💡</div>
+                  <div>
+                    <p class="text-sm font-semibold text-indigo-900">
+                      Совет
+                    </p>
+                    <p class="mt-1 text-xs leading-5 text-indigo-700">
+                      Чем конкретнее инструкция, тем предсказуемее поведение AI.
+                      Опишите роль, задачи, стиль общения и ограничения.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+          <!-- Tone -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+              <h3 class="text-base font-bold">
+                Тон общения
+              </h3>
+
+              <p class="mt-1 text-sm text-slate-500">
+                Выберите основной стиль ответов.
+              </p>
+            </div>
+
+            <div class="grid gap-3 p-5 sm:grid-cols-3 sm:p-6">
+
+              <button
+                class="tone-card rounded-xl border-2 border-indigo-500 bg-indigo-50 p-4 text-left"
+                data-tone="friendly"
+              >
+                <div class="mb-3 text-2xl">😊</div>
+                <p class="text-sm font-bold text-slate-900">
+                  Дружелюбный
+                </p>
+                <p class="mt-1 text-xs leading-5 text-slate-500">
+                  Тёплое и естественное общение.
+                </p>
+              </button>
+
+              <button
+                class="tone-card rounded-xl border border-slate-200 p-4 text-left hover:border-slate-300"
+                data-tone="professional"
+              >
+                <div class="mb-3 text-2xl">👔</div>
+                <p class="text-sm font-bold text-slate-900">
+                  Профессиональный
+                </p>
+                <p class="mt-1 text-xs leading-5 text-slate-500">
+                  Чётко, спокойно и делово.
+                </p>
+              </button>
+
+              <button
+                class="tone-card rounded-xl border border-slate-200 p-4 text-left hover:border-slate-300"
+                data-tone="short"
+              >
+                <div class="mb-3 text-2xl">⚡</div>
+                <p class="text-sm font-bold text-slate-900">
+                  Короткий
+                </p>
+                <p class="mt-1 text-xs leading-5 text-slate-500">
+                  Минимум текста, максимум пользы.
+                </p>
+              </button>
+
+            </div>
+          </div>
+
+
+          <!-- AI restrictions -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+              <h3 class="text-base font-bold">
+                Ограничения AI
+              </h3>
+
+              <p class="mt-1 text-sm text-slate-500">
+                Укажите, чего бот не должен делать.
+              </p>
+            </div>
+
+            <div class="space-y-4 p-5 sm:p-6">
+
+              <label class="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked
+                  class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    Не придумывать информацию
+                  </p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">
+                    AI должен сообщать, если необходимой информации нет в базе знаний.
+                  </p>
+                </div>
+              </label>
+
+              <label class="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked
+                  class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    Не давать медицинские и юридические советы
+                  </p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">
+                    Использовать осторожные ответы на чувствительные вопросы.
+                  </p>
+                </div>
+              </label>
+
+              <label class="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked
+                  class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <div>
+                  <p class="text-sm font-semibold text-slate-800">
+                    Не обсуждать внутренние инструкции
+                  </p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">
+                    Не раскрывать системный prompt или внутреннюю логику бота.
+                  </p>
+                </div>
+              </label>
+
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             KNOWLEDGE
+        ====================================================== -->
+        <section
+          id="section-knowledge"
+          class="settings-section mt-10 space-y-6"
+        >
+
+          <div>
+            <h2 class="text-xl font-bold text-slate-950">
+              Знания
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+              Источники информации, которыми AI может пользоваться.
+            </p>
+          </div>
+
+
+          <!-- Files -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+              <div class="flex items-center justify-between gap-4">
+
+                <div>
+                  <h3 class="text-base font-bold">
+                    Документы
+                  </h3>
+
+                  <p class="mt-1 text-sm text-slate-500">
+                    PDF, DOCX, TXT и другие документы.
+                  </p>
+                </div>
+
+                <span
+                  id="fileCount"
+                  class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
+                >
+                  3 файла
+                </span>
+
+              </div>
+            </div>
+
+            <div class="p-5 sm:p-6">
+
+              <div
+                id="uploadZone"
+                class="upload-zone cursor-pointer rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-8 text-center transition"
+              >
+
+                <input
+                  id="fileInput"
+                  type="file"
+                  multiple
+                  accept=".pdf,.doc,.docx,.txt,.csv"
+                  class="hidden"
+                />
+
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-2xl">
+                  ↑
+                </div>
+
+                <p class="mt-4 text-sm font-semibold text-slate-800">
+                  Перетащите документы сюда
+                </p>
+
+                <p class="mt-1 text-xs text-slate-500">
+                  или
+                  <button
+                    type="button"
+                    id="chooseFiles"
+                    class="font-semibold text-indigo-600 hover:text-indigo-700"
+                  >
+                    выберите файлы
+                  </button>
+                </p>
+
+                <p class="mt-3 text-[11px] text-slate-400">
+                  PDF, DOC, DOCX, TXT, CSV · до 20 МБ на файл
+                </p>
+
+              </div>
+
+
+              <!-- Existing files -->
+              <div id="fileList" class="mt-5 space-y-3">
+
+                <div
+                  class="file-item flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-3"
+                >
+                  <div class="flex min-w-0 items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-50 text-sm font-bold text-red-600">
+                      PDF
+                    </div>
+
+                    <div class="min-w-0">
+                      <p class="truncate text-sm font-semibold text-slate-800">
+                        menu-and-prices.pdf
+                      </p>
+                      <p class="text-xs text-slate-400">
+                        1.8 МБ · Обновлён сегодня
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    class="remove-file shrink-0 text-slate-400 hover:text-red-500"
+                  >
+                    ×
+                  </button>
+                </div>
+
+
+                <div
+                  class="file-item flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-3"
+                >
+                  <div class="flex min-w-0 items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-sm font-bold text-blue-600">
+                      DOC
+                    </div>
+
+                    <div class="min-w-0">
+                      <p class="truncate text-sm font-semibold text-slate-800">
+                        cafe-information.docx
+                      </p>
+                      <p class="text-xs text-slate-400">
+                        740 КБ · Обновлён вчера
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    class="remove-file shrink-0 text-slate-400 hover:text-red-500"
+                  >
+                    ×
+                  </button>
+                </div>
+
+
+                <div
+                  class="file-item flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-3"
+                >
+                  <div class="flex min-w-0 items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-sm font-bold text-emerald-600">
+                      TXT
+                    </div>
+
+                    <div class="min-w-0">
+                      <p class="truncate text-sm font-semibold text-slate-800">
+                        faq.txt
+                      </p>
+                      <p class="text-xs text-slate-400">
+                        24 КБ · Обновлён 2 дня назад
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    class="remove-file shrink-0 text-slate-400 hover:text-red-500"
+                  >
+                    ×
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+
+          <!-- Text knowledge -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+              <h3 class="text-base font-bold">
+                Текстовые знания
+              </h3>
+
+              <p class="mt-1 text-sm text-slate-500">
+                Добавьте информацию напрямую, без загрузки файла.
+              </p>
+            </div>
+
+            <div class="p-5 sm:p-6">
+
+              <textarea
+                rows="9"
+                class="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm leading-6 outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+              >Адрес: ул. Центральная, 15.
+
+Время работы:
+Понедельник — воскресенье: 08:00–22:00.
+
+Wi-Fi:
+Сеть: CoffeeHouse_Guest
+Пароль: coffee2026
+
+Бронирование:
+Для бронирования столика необходимо указать дату, время и количество гостей.
+
+Оплата:
+Принимаем карты и наличные.</textarea>
+
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             BEHAVIOR
+        ====================================================== -->
+        <section
+          id="section-behavior"
+          class="settings-section mt-10 space-y-6"
+        >
+
+          <div>
+            <h2 class="text-xl font-bold text-slate-950">
+              Поведение и ответы
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+              Настройте то, как AI ведёт диалог с пользователями.
+            </p>
+          </div>
+
+
+          <!-- Response length -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+              <h3 class="text-base font-bold">
+                Длина ответа
+              </h3>
+
+              <p class="mt-1 text-sm text-slate-500">
+                Выберите желаемую детализацию ответов.
+              </p>
+            </div>
+
+            <div class="p-5 sm:p-6">
+
+              <div class="grid gap-3 md:grid-cols-3">
+
+                <label class="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="responseLength"
+                    class="peer hidden"
+                    checked
+                  />
+
+                  <div class="rounded-xl border-2 border-indigo-500 bg-indigo-50 p-4 transition peer-checked:border-indigo-500">
+                    <p class="text-sm font-bold">Короткие</p>
+                    <p class="mt-1 text-xs leading-5 text-slate-500">
+                      1–3 предложения
+                    </p>
+                  </div>
+                </label>
+
+                <label class="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="responseLength"
+                    class="peer hidden"
+                  />
+
+                  <div class="rounded-xl border border-slate-200 p-4 transition hover:border-slate-300">
+                    <p class="text-sm font-bold">Средние</p>
+                    <p class="mt-1 text-xs leading-5 text-slate-500">
+                      3–6 предложений
+                    </p>
+                  </div>
+                </label>
+
+                <label class="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="responseLength"
+                    class="peer hidden"
+                  />
+
+                  <div class="rounded-xl border border-slate-200 p-4 transition hover:border-slate-300">
+                    <p class="text-sm font-bold">Подробные</p>
+                    <p class="mt-1 text-xs leading-5 text-slate-500">
+                      Максимум контекста
+                    </p>
+                  </div>
+                </label>
+
+              </div>
+
+            </div>
+          </div>
+
+
+          <!-- Toggles -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+              <h3 class="text-base font-bold">
+                Дополнительное поведение
+              </h3>
+            </div>
+
+            <div class="divide-y divide-slate-100">
+
+              <div class="flex items-center justify-between gap-6 p-5 sm:px-6">
+                <div>
+                  <p class="text-sm font-semibold">
+                    Задавать уточняющие вопросы
+                  </p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">
+                    AI уточнит детали, если запрос пользователя недостаточно конкретный.
+                  </p>
+                </div>
+
+                <button
+                  class="toggle on"
+                  data-toggle="clarifying"
+                  aria-label="Задавать уточняющие вопросы"
+                ></button>
+              </div>
+
+              <div class="flex items-center justify-between gap-6 p-5 sm:px-6">
+                <div>
+                  <p class="text-sm font-semibold">
+                    Использовать эмодзи
+                  </p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">
+                    Позволить AI использовать эмодзи в дружелюбных ответах.
+                  </p>
+                </div>
+
+                <button
+                  class="toggle on"
+                  data-toggle="emoji"
+                  aria-label="Использовать эмодзи"
+                ></button>
+              </div>
+
+              <div class="flex items-center justify-between gap-6 p-5 sm:px-6">
+                <div>
+                  <p class="text-sm font-semibold">
+                    Предлагать следующий шаг
+                  </p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">
+                    В конце ответа AI может предложить пользователю дальнейшее действие.
+                  </p>
+                </div>
+
+                <button
+                  class="toggle on"
+                  data-toggle="nextStep"
+                  aria-label="Предлагать следующий шаг"
+                ></button>
+              </div>
+
+              <div class="flex items-center justify-between gap-6 p-5 sm:px-6">
+                <div>
+                  <p class="text-sm font-semibold">
+                    Передавать сложные вопросы человеку
+                  </p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">
+                    Показывать пользователю способ связаться с сотрудником.
+                  </p>
+                </div>
+
+                <button
+                  class="toggle on"
+                  data-toggle="humanHandoff"
+                  aria-label="Передавать человеку"
+                ></button>
+              </div>
+
+            </div>
+          </div>
+
+
+          <!-- Fallback -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+              <h3 class="text-base font-bold">
+                Если AI не знает ответа
+              </h3>
+            </div>
+
+            <div class="p-5 sm:p-6">
+
+              <textarea
+                rows="4"
+                class="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+              >К сожалению, у меня нет точной информации по этому вопросу. Я могу помочь с меню, ценами, временем работы и другой информацией о Coffee House.</textarea>
+
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             INTEGRATIONS
+        ====================================================== -->
+        <section
+          id="section-integrations"
+          class="settings-section mt-10 space-y-6"
+        >
+
+          <div>
+            <h2 class="text-xl font-bold text-slate-950">
+              Интеграции
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+              Подключите внешние сервисы для расширения возможностей бота.
+            </p>
+          </div>
+
+
+          <div class="grid gap-4 md:grid-cols-2">
+
+            <!-- Telegram -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-xl">
+                    ✈️
+                  </div>
+
+                  <div>
+                    <h3 class="text-sm font-bold">
+                      Telegram
+                    </h3>
+                    <p class="mt-1 text-xs text-slate-500">
+                      Общение через Telegram-бота
+                    </p>
+                  </div>
+                </div>
+
+                <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500">
+                  Не подключён
+                </span>
+              </div>
+
+              <button
+                class="integration-connect mt-5 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                data-service="Telegram"
+              >
+                Подключить
+              </button>
+
+            </div>
+
+
+            <!-- WhatsApp -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-xl">
+                    💬
+                  </div>
+
+                  <div>
+                    <h3 class="text-sm font-bold">
+                      WhatsApp
+                    </h3>
+                    <p class="mt-1 text-xs text-slate-500">
+                      AI-консультант в WhatsApp
+                    </p>
+                  </div>
+                </div>
+
+                <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500">
+                  Не подключён
+                </span>
+              </div>
+
+              <button
+                class="integration-connect mt-5 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                data-service="WhatsApp"
+              >
+                Подключить
+              </button>
+
+            </div>
+
+
+            <!-- Website -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-xl">
+                    🌐
+                  </div>
+
+                  <div>
+                    <h3 class="text-sm font-bold">
+                      Сайт
+                    </h3>
+                    <p class="mt-1 text-xs text-slate-500">
+                      Виджет AI-чата для сайта
+                    </p>
+                  </div>
+                </div>
+
+                <span class="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">
+                  Готово
+                </span>
+              </div>
+
+              <button
+                class="mt-5 w-full rounded-xl bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-600 hover:bg-indigo-100"
+                onclick="showToast('Настройки виджета открыты')"
+              >
+                Настроить виджет
+              </button>
+
+            </div>
+
+
+            <!-- API -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-xl">
+                    </>
+                  </div>
+
+                  <div>
+                    <h3 class="text-sm font-bold">
+                      API
+                    </h3>
+                    <p class="mt-1 text-xs text-slate-500">
+                      Подключение через API
+                    </p>
+                  </div>
+                </div>
+
+                <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500">
+                  Не подключён
+                </span>
+              </div>
+
+              <button
+                class="integration-connect mt-5 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                data-service="API"
+              >
+                Получить API ключ
+              </button>
+
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- =====================================================
+             PUBLISH
+        ====================================================== -->
+        <section
+          id="section-publish"
+          class="settings-section mt-10 space-y-6"
+        >
+
+          <div>
+            <h2 class="text-xl font-bold text-slate-950">
+              Публикация
+            </h2>
+
+            <p class="mt-1 text-sm text-slate-500">
+              Управляйте состоянием и доступностью вашего бота.
+            </p>
+          </div>
+
+
+          <!-- Current status -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+
+              <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50">
+                  <span class="h-3 w-3 rounded-full bg-emerald-500"></span>
+                </div>
+
+                <div>
+                  <p class="text-sm font-bold">
+                    Бот опубликован
+                  </p>
+
+                  <p class="mt-1 text-xs text-slate-500">
+                    Пользователи уже могут с ним общаться.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                id="disableBot"
+                class="rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
+              >
+                Остановить бота
+              </button>
+
+            </div>
+          </div>
+
+
+          <!-- Publish CTA -->
+          <div class="overflow-hidden rounded-2xl bg-slate-950 shadow-sm">
+
+            <div class="p-6 sm:p-8">
+
+              <div class="flex flex-col justify-between gap-6 md:flex-row md:items-center">
+
+                <div>
+                  <p class="text-lg font-bold text-white">
+                    Готовы изменить бота?
+                  </p>
+
+                  <p class="mt-2 max-w-xl text-sm leading-6 text-slate-400">
+                    После изменения настроек протестируйте ответы AI,
+                    а затем опубликуйте новую версию.
+                  </p>
+                </div>
+
+                <div class="flex flex-col gap-2 sm:flex-row">
+                  <a
+                    href="test.html"
+                    class="rounded-xl border border-slate-700 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-slate-900"
+                  >
+                    Тестировать
+                  </a>
+
+                  <a
+                    href="publish.html"
+                    class="rounded-xl bg-white px-4 py-2.5 text-center text-sm font-semibold text-slate-900 hover:bg-slate-100"
+                  >
+                    Опубликовать
+                  </a>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             DANGER ZONE
+        ====================================================== -->
+        <section class="mt-12">
+
+          <div class="rounded-2xl border border-red-200 bg-red-50/40">
+
+            <div class="border-b border-red-100 px-5 py-5 sm:px-6">
+              <h2 class="text-base font-bold text-red-700">
+                Опасная зона
+              </h2>
+
+              <p class="mt-1 text-sm text-red-600/70">
+                Эти действия могут привести к потере данных.
+              </p>
+            </div>
+
+            <div class="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+
+              <div>
+                <p class="text-sm font-semibold text-slate-800">
+                  Удалить бота
+                </p>
+
+                <p class="mt-1 text-xs leading-5 text-slate-500">
+                  Бот, его настройки и знания будут удалены без возможности восстановления.
+                </p>
+              </div>
+
+              <button
+                id="deleteBot"
+                class="shrink-0 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
+              >
+                Удалить бота
+              </button>
+
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- Bottom save -->
+        <div class="mt-8 flex justify-end border-t border-slate-200 pt-6">
+
+          <button
+            id="saveBottom"
+            class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M5 4H16L19 7V20H5V4Z"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M8 4V9H16V4M8 20V14H16V20"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+            </svg>
+            Сохранить изменения
+          </button>
+
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+
+  <!-- =========================================================
+       TOAST
+  ========================================================== -->
+  <div
+    id="toastContainer"
+    class="fixed bottom-5 right-5 z-[100] space-y-2"
+  ></div>
+
+
+  <!-- =========================================================
+       JAVASCRIPT
+  ========================================================== -->
+  <script>
+
+    /* =========================================================
+       HELPERS
+    ========================================================== */
+
+    function showToast(message, type = "success") {
+
+      const container = document.getElementById("toastContainer");
+
+      const toast = document.createElement("div");
+
+      const icon = type === "success" ? "✓" : "⚠";
+
+      toast.className =
+        "toast flex min-w-[280px] items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-xl";
+
+      toast.innerHTML = `
+        <div class="flex h-7 w-7 items-center justify-center rounded-full ${
+          type === "success"
+            ? "bg-emerald-100 text-emerald-600"
+            : "bg-amber-100 text-amber-600"
+        }">
+          ${icon}
+        </div>
+        <span>${escapeHtml(message)}</span>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(10px)";
+
+        setTimeout(() => toast.remove(), 250);
+      }, 2600);
+    }
+
+
+    function escapeHtml(value) {
+      const div = document.createElement("div");
+      div.textContent = value;
+      return div.innerHTML;
+    }
+
+
+    /* =========================================================
+       DESCRIPTION COUNTER
+    ========================================================== */
+
+    const description = document.getElementById("businessDescription");
+    const descriptionCount = document.getElementById("descriptionCount");
+
+    function updateDescriptionCount() {
+      descriptionCount.textContent =
+        `${description.value.length} символов`;
+    }
+
+    description.addEventListener("input", updateDescriptionCount);
+    updateDescriptionCount();
+
+
+    /* =========================================================
+       SIDEBAR NAVIGATION
+    ========================================================== */
+
+    const sidebarLinks = document.querySelectorAll(".sidebar-link");
+    const mobileNav = document.querySelectorAll(".mobile-nav");
+
+    function activateSection(section) {
+
+      document.querySelectorAll(".settings-section").forEach(item => {
+        item.classList.remove("fade-in");
+      });
+
+      sidebarLinks.forEach(link => {
+        link.classList.toggle(
+          "active",
+          link.dataset.section === section
+        );
+      });
+
+      mobileNav.forEach(link => {
+
+        if (link.dataset.section === section) {
+          link.classList.add(
+            "bg-indigo-50",
+            "text-indigo-600",
+            "active"
+          );
+
+          link.classList.remove("text-slate-500");
+
+        } else {
+
+          link.classList.remove(
+            "bg-indigo-50",
+            "text-indigo-600",
+            "active"
+          );
+
+          link.classList.add("text-slate-500");
+        }
+
+      });
+
+      const target = document.getElementById(
+        `section-${section}`
+      );
+
+      if (target) {
+        target.classList.add("fade-in");
+
+        window.scrollTo({
+          top: target.offsetTop - 85,
+          behavior: "smooth"
+        });
+      }
+    }
+
+
+    sidebarLinks.forEach(link => {
+
+      link.addEventListener("click", () => {
+        activateSection(link.dataset.section);
+      });
+
+    });
+
+
+    mobileNav.forEach(link => {
+
+      link.addEventListener("click", () => {
+        activateSection(link.dataset.section);
+      });
+
+    });
+
+
+    /* =========================================================
+       AVATAR
+    ========================================================== */
+
+    const avatarPreview =
+      document.getElementById("avatarPreview");
+
+    document.querySelectorAll(".avatar-choice").forEach(button => {
+
+      button.addEventListener("click", () => {
+
+        avatarPreview.textContent =
+          button.textContent.trim();
+
+        showToast("Аватар обновлён");
+      });
+
+    });
+
+
+    /* =========================================================
+       TONE
+    ========================================================== */
+
+    document.querySelectorAll(".tone-card").forEach(card => {
+
+      card.addEventListener("click", () => {
+
+        document.querySelectorAll(".tone-card").forEach(item => {
+
+          item.classList.remove(
+            "border-2",
+            "border-indigo-500",
+            "bg-indigo-50"
+          );
+
+          item.classList.add("border");
+
+        });
+
+        card.classList.remove("border");
+        card.classList.add(
+          "border-2",
+          "border-indigo-500",
+          "bg-indigo-50"
+        );
+
+        showToast(
+          `Тон "${card.querySelector("p").textContent}" выбран`
+        );
+
+      });
+
+    });
+
+
+    /* =========================================================
+       TOGGLES
+    ========================================================== */
+
+    document.querySelectorAll(".toggle").forEach(toggle => {
+
+      toggle.addEventListener("click", () => {
+
+        toggle.classList.toggle("on");
+
+      });
+
+    });
+
+
+    /* =========================================================
+       FILE UPLOAD
+    ========================================================== */
+
+    const uploadZone =
+      document.getElementById("uploadZone");
+
+    const fileInput =
+      document.getElementById("fileInput");
+
+    const chooseFiles =
+      document.getElementById("chooseFiles");
+
+    const fileList =
+      document.getElementById("fileList");
+
+    const fileCount =
+      document.getElementById("fileCount");
+
+
+    chooseFiles.addEventListener("click", (event) => {
+      event.stopPropagation();
+      fileInput.click();
+    });
+
+
+    uploadZone.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+
+    fileInput.addEventListener("change", () => {
+
+      handleFiles([...fileInput.files]);
+
+      fileInput.value = "";
+
+    });
+
+
+    uploadZone.addEventListener("dragover", event => {
+
+      event.preventDefault();
+
+      uploadZone.classList.add("dragover");
+
+    });
+
+
+    uploadZone.addEventListener("dragleave", () => {
+
+      uploadZone.classList.remove("dragover");
+
+    });
+
+
+    uploadZone.addEventListener("drop", event => {
+
+      event.preventDefault();
+
+      uploadZone.classList.remove("dragover");
+
+      handleFiles([...event.dataTransfer.files]);
+
+    });
+
+
+    function formatFileSize(bytes) {
+
+      if (bytes < 1024) {
+        return `${bytes} Б`;
+      }
+
+      if (bytes < 1024 * 1024) {
+        return `${Math.round(bytes / 1024)} КБ`;
+      }
+
+      return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
+    }
+
+
+    function getFileType(name) {
+
+      const extension =
+        name.split(".").pop().toLowerCase();
+
+      return extension.toUpperCase();
+    }
+
+
+    function handleFiles(files) {
+
+      if (!files.length) return;
+
+      files.forEach(file => {
+
+        if (file.size > 20 * 1024 * 1024) {
+
+          showToast(
+            `${file.name}: файл больше 20 МБ`,
+            "warning"
+          );
+
+          return;
+        }
+
+
+        const item = document.createElement("div");
+
+        item.className =
+          "file-item flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-3";
+
+
+        item.innerHTML = `
+          <div class="flex min-w-0 items-center gap-3">
+
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-xs font-bold text-indigo-600">
+              ${escapeHtml(getFileType(file.name))}
+            </div>
+
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold text-slate-800">
+                ${escapeHtml(file.name)}
+              </p>
+
+              <p class="text-xs text-slate-400">
+                ${formatFileSize(file.size)} · Только что
+              </p>
+            </div>
+
+          </div>
+
+          <button
+            class="remove-file shrink-0 text-slate-400 hover:text-red-500"
+          >
+            ×
+          </button>
+        `;
+
+
+        item
+          .querySelector(".remove-file")
+          .addEventListener("click", () => {
+
+            item.remove();
+
+            updateFileCount();
+
+            showToast("Файл удалён");
+
+          });
+
+
+        fileList.appendChild(item);
+
+      });
+
+
+      updateFileCount();
+
+      showToast(
+        files.length === 1
+          ? "Файл добавлен"
+          : `Добавлено файлов: ${files.length}`
+      );
+
+    }
+
+
+    function updateFileCount() {
+
+      const count =
+        fileList.querySelectorAll(".file-item").length;
+
+      fileCount.textContent =
+        `${count} ${getRussianWord(count, ["файл", "файла", "файлов"])}`;
+
+    }
+
+
+    function getRussianWord(number, words) {
+
+      const mod10 = number % 10;
+      const mod100 = number % 100;
+
+      if (mod10 === 1 && mod100 !== 11) {
+        return words[0];
+      }
+
+      if (
+        mod10 >= 2 &&
+        mod10 <= 4 &&
+        (mod100 < 10 || mod100 >= 20)
+      ) {
+        return words[1];
+      }
+
+      return words[2];
+    }
+
+
+    document
+      .querySelectorAll(".remove-file")
+      .forEach(button => {
+
+        button.addEventListener("click", () => {
+
+          button.closest(".file-item").remove();
+
+          updateFileCount();
+
+          showToast("Файл удалён");
+
+        });
+
+      });
+
+
+    /* =========================================================
+       INTEGRATIONS
+    ========================================================== */
+
+    document
+      .querySelectorAll(".integration-connect")
+      .forEach(button => {
+
+        button.addEventListener("click", () => {
+
+          const service =
+            button.dataset.service;
+
+          showToast(
+            `${service}: подключение будет настроено в следующем шаге`,
+            "warning"
+          );
+
+        });
+
+      });
+
+
+    /* =========================================================
+       SAVE
+    ========================================================== */
+
+    function saveSettings(button) {
+
+      const originalHTML =
+        button.innerHTML;
+
+      button.disabled = true;
+
+      button.innerHTML = `
+        <svg
+          class="animate-spin"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="9"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-opacity=".25"
+          />
+          <path
+            d="M21 12A9 9 0 0 1 12 21"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        Сохранение...
+      `;
+
+
+      setTimeout(() => {
+
+        button.disabled = false;
+
+        button.innerHTML =
+          originalHTML;
+
+        showToast(
+          "Изменения успешно сохранены"
+        );
+
+      }, 900);
+
+    }
+
+
+    document
+      .getElementById("saveTop")
+      .addEventListener("click", function () {
+
+        saveSettings(this);
+
+      });
+
+
+    document
+      .getElementById("saveBottom")
+      .addEventListener("click", function () {
+
+        saveSettings(this);
+
+      });
+
+
+    /* =========================================================
+       BOT NAME LIVE UPDATE
+    ========================================================== */
+
+    document
+      .getElementById("botName")
+      .addEventListener("input", event => {
+
+        const name =
+          event.target.value.trim();
+
+        const titleElements =
+          document.querySelectorAll(
+            "header .font-semibold"
+          );
+
+        titleElements.forEach(element => {
+
+          if (
+            element.textContent ===
+            "Coffee House Bot"
+          ) {
+            element.textContent =
+              name || "Coffee House Bot";
+          }
+
+        });
+
+      });
+
+
+    /* =========================================================
+       DISABLE BOT
+    ========================================================== */
+
+    document
+      .getElementById("disableBot")
+      .addEventListener("click", function () {
+
+        const confirmed =
+          confirm(
+            "Вы уверены, что хотите остановить этого бота?"
+          );
+
+        if (!confirmed) return;
+
+        showToast(
+          "Бот остановлен",
+          "warning"
+        );
+
+        this.textContent =
+          "Запустить бота";
+
+        this.classList.remove(
+          "border-red-200",
+          "text-red-600",
+          "hover:bg-red-50"
+        );
+
+        this.classList.add(
+          "border-emerald-200",
+          "text-emerald-600"
+        );
+
+      });
+
+
+    /* =========================================================
+       DELETE BOT
+    ========================================================== */
+
+    document
+      .getElementById("deleteBot")
+      .addEventListener("click", () => {
+
+        const confirmed =
+          confirm(
+            "Удалить бота? Это действие нельзя отменить."
+          );
+
+        if (!confirmed) return;
+
+        const secondConfirm =
+          confirm(
+            "Все настройки, знания и данные бота будут удалены. Продолжить?"
+          );
+
+        if (!secondConfirm) return;
+
+        showToast(
+          "Бот удалён. Возвращаемся к списку ботов...",
+          "warning"
+        );
+
+        setTimeout(() => {
+          window.location.href =
+            "bots.html";
+        }, 1200);
+
+      });
+
+
+    /* =========================================================
+       PROFILE
+    ========================================================== */
+
+    document
+      .getElementById("profileButton")
+      .addEventListener("click", () => {
+
+        showToast(
+          "Профиль пользователя"
+        );
+
+      });
+
+
+    /* =========================================================
+       INITIALIZATION
+    ========================================================== */
+
+    updateFileCount();
+
+  </script>
+
+</body>
+</html>
+```
